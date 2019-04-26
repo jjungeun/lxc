@@ -235,6 +235,14 @@ int main(int argc, char *argv[])
     char *rundir;
     int ret = -1;
     FILE *fp;
+
+    if (geteuid() != 0)
+    {
+        printf("%s must be run as root\n", argv[0]);
+        ERROR("%s must be run as root", argv[0]);
+        exit(EXIT_FAILURE);
+    }
+
     /* lxc_arguments_parse requires that my_args.name is set.
      * So setting dummy name. 
      */
@@ -278,6 +286,7 @@ int main(int argc, char *argv[])
         }
     } else if (strncmp(action, "add", strlen(action)) == 0){
         //컨테이너가 존재하는지는 argument에서 확인함.
+
         if (my_args.name != "" && my_args.gname) {
             if(add_container(path,my_args.gname,my_args.name)){
                 printf("Successfully add %s container to %s group.\n",my_args.name,my_args.gname);
