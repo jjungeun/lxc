@@ -151,6 +151,9 @@ struct lxc_arguments {
 
 	/* private arguments */
 	void *data;
+
+	//jungeun
+	const char *gname;
 };
 
 #define LXC_COMMON_OPTIONS                                                     \
@@ -163,6 +166,7 @@ struct lxc_arguments {
 	    { "logpriority", required_argument, 0, 'l'         },              \
 	    { "lxcpath",     required_argument, 0, 'P'         },              \
 	    { "rcfile",      required_argument, 0, OPT_RCFILE  },              \
+		{ "gname",       required_argument, 0, 'g'         },              \
 	    { 0,             0,                 0, 0           }
 
 /* option keys for long only options */

@@ -186,6 +186,7 @@ endif
 
 AM_CFLAGS = -DLXCROOTFSMOUNT=\"$(LXCROOTFSMOUNT)\" \
 	    -DLXCPATH=\"$(LXCPATH)\" \
+	    -DLXCGROUPPATH=\"$(LXCGROUPPATH)\" \
 	    -DLXC_GLOBAL_CONF=\"$(LXC_GLOBAL_CONF)\" \
 	    -DLXCINITDIR=\"$(LXCINITDIR)\" \
 	    -DLIBEXECDIR=\"$(LIBEXECDIR)\" \
@@ -259,7 +260,8 @@ bin_SCRIPTS += cmd/lxc-checkconfig \
 endif
 
 if ENABLE_TOOLS
-bin_PROGRAMS = lxc-attach \
+bin_PROGRAMS = lxc-group \
+		   lxc-attach \
 	       lxc-autostart \
 	       lxc-cgroup \
 	       lxc-checkpoint \
@@ -311,6 +313,8 @@ LDADD = liblxc.la \
 	@DLOG_LIBS@
 
 if ENABLE_TOOLS
+lxc_group_SOURCES = tools/lxc_group.c \
+		     tools/arguments.c tools/arguments.h
 lxc_attach_SOURCES = tools/lxc_attach.c \
 		     rexec.c rexec.h \
 		     tools/arguments.c tools/arguments.h

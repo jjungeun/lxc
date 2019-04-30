@@ -361,6 +361,7 @@ static int ls_get(struct ls **m, size_t *size, const struct lxc_arguments *args,
 	 * default lxcpath or the path the user gave us is.  Basepath will also
 	 * be the empty string in case we encounter a running container since we
 	 * can simply attach to its namespace to retrieve nested containers. */
+	
 	char *path = lxc_append_paths(basepath, args->lxcpath[0]);
 	if (!path)
 		goto out;

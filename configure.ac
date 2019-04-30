@@ -456,6 +456,12 @@ AC_ARG_WITH([config-path],
 		[lxc configuration repository path]
 	)], [], [with_config_path=['${localstatedir}/lib/lxc']])
 
+AC_ARG_WITH([config-grouppath],
+	[AC_HELP_STRING(
+		[--with-config-grouppath=dir],
+		[lxcgroup configuration repository path]
+	)], [], [with_config_grouppath=['${localstatedir}/lib/lxcgroup']])
+
 # The path of the global lxc configuration file.
 AC_ARG_WITH([global-conf],
 	[AC_HELP_STRING(
@@ -532,6 +538,7 @@ AS_AC_EXPAND(LOCALSTATEDIR, "$localstatedir")
 AS_AC_EXPAND(DOCDIR, "$docdir")
 AS_AC_EXPAND(LXC_GENERATE_DATE, "$(date --utc --date=@${SOURCE_DATE_EPOCH:-$(date +%s)} '+%Y-%m-%d')")
 AS_AC_EXPAND(LXCPATH, "$with_config_path")
+AS_AC_EXPAND(LXCGROUPPATH, "$with_config_grouppath")
 AS_AC_EXPAND(LXC_GLOBAL_CONF, "$with_global_conf")
 AS_AC_EXPAND(LXC_USERNIC_CONF, "$with_usernic_conf")
 AS_AC_EXPAND(LXC_USERNIC_DB, "$with_usernic_db")
@@ -729,8 +736,8 @@ AX_CHECK_COMPILE_FLAG([-fasynchronous-unwind-tables], [CFLAGS="$CFLAGS -fasynchr
 AX_CHECK_COMPILE_FLAG([-pipe], [CFLAGS="$CFLAGS -pipe"],,[-Werror])
 AX_CHECK_COMPILE_FLAG([-fexceptions], [CFLAGS="$CFLAGS -fexceptions"],,[-Werror])
 
-AX_CHECK_LINK_FLAG([-z relro], [LDFLAGS="$LDFLAGS -z relro"],,[])
-AX_CHECK_LINK_FLAG([-z now], [LDFLAGS="$LDFLAGS -z now"],,[])
+AX_CHECK_LINK_FLAG([-z relro], [LDLAGS="$LDLAGS -z relro"],,[])
+AX_CHECK_LINK_FLAG([-z now], [LDLAGS="$LDLAGS -z now"],,[])
 
 CFLAGS="$CFLAGS -Wvla -std=gnu11"
 if test "x$enable_werror" = "xyes"; then

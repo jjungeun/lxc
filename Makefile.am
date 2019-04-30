@@ -21,6 +21,7 @@ libtool: $(LIBTOOL_DEPS)
 
 install-data-local:
 	$(MKDIR_P) $(DESTDIR)$(LXCPATH)
+	$(MKDIR_P) $(DESTDIR)$(LXCGROUPPATH)
 	$(MKDIR_P) $(DESTDIR)$(localstatedir)/cache/lxc
 
 ChangeLog::

@@ -8,8 +8,7 @@
 #include <errno.h>
 #include <unistd.h>
 
-#include <lxc/lxccontainer.h>
-
+#include "lxccontainer.h"
 #include "arguments.h"
 #include "log.h"
 #include "utils.h"
@@ -130,9 +129,11 @@ static bool add_container(const char *path,const char *group_name,const char *co
     int ret;
 	size_t len;
 	char *s;
+    char *grouppath = (char *)lxc_get_global_config_item("lxc.lxcgrouppath");
     char *oldpath = (char *)lxc_global_config_value("lxc.lxcpath");
     size_t oldlen;
-
+    printf("oldpath : %s\n",oldpath);
+    printf("grouppath : %s\n",grouppath);
 	len = strlen(path) + strlen(group_name) + strlen(container_name) + 3;
 	s = malloc(len);
 	if (!s)
@@ -249,7 +250,6 @@ int main(int argc, char *argv[])
     my_args.name  = "";
     if(lxc_arguments_parse(&my_args, argc, argv))
         exit(EXIT_FAILURE);
-    printf("main\n");
     
     //action이 없는 경우
     if (my_args.argc < 1) {
@@ -259,12 +259,12 @@ int main(int argc, char *argv[])
 
     action = my_args.argv[0];
 
-    //lxcgroup dir이 없는 경우
-    if(!dir_exists(path)){
-        if(mkdir(path,0770) != 0){
-            ERROR("Error: fail to make directory");
-        }
-    }
+    // //lxcgroup dir이 없는 경우
+    // if(!dir_exists(path)){
+    //     if(mkdir(path,0770) != 0){
+    //         ERROR("Error: fail to make directory");
+    //     }
+    // }
 
     if (strncmp(action, "create", strlen(action)) == 0){
         if (my_args.gname) {

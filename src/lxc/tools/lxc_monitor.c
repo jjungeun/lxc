@@ -292,7 +292,7 @@ int main(int argc, char *argv[])
 
 		exit(ret);
 	}
-
+	printf("name:%s\n",my_args.name);
 	len = strlen(my_args.name) + 3;
 	regexp = malloc(len + 3);
 	if (!regexp) {
@@ -305,6 +305,7 @@ int main(int argc, char *argv[])
 		ERROR("Name too long");
 		goto error;
 	}
+	printf("regexp:%s\n",regexp);
 
 	if (regcomp(&preg, regexp, REG_NOSUB|REG_EXTENDED)) {
 		ERROR("Failed to compile the regex '%s'", my_args.name);

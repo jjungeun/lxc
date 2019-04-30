@@ -28,6 +28,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <list.h>
 
 #include <lxc/attach_options.h>
 
@@ -59,6 +60,22 @@ struct lxc_console_log;
 struct lxc_mount {
 	int version;
 };
+
+struct lxc_group {
+	/* private fields */
+	/*!
+	 * \private
+	 * Name of container group.
+	 */
+	char *gname;
+
+	/*!
+	 * \private
+	 * List of conainers belonging to group.
+	 */
+	struct lxc_list *glist;
+};
+
 
 /*!
  * An LXC container.

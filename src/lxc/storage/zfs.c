@@ -53,7 +53,7 @@ int zfs_detect_exec_wrapper(void *data)
 {
 	struct zfs_args *args = data;
 
-	execlp("zfs", "zfs", "get", "-H", "-o", "name", "type", args->dataset,
+	execlp("zfs", "zfs", "get", "type", "-H", "-o", "name", args->dataset,
 	       (char *)NULL);
 
 	return -1;
@@ -101,7 +101,7 @@ int zfs_get_parent_snapshot_exec_wrapper(void *args)
 {
 	struct zfs_args *zfs_args = args;
 
-	execlp("zfs", "zfs", "get", "-H", "-o", "value", "origin",
+	execlp("zfs", "zfs", "get", "origin", "-o", "value", "-H",
 	       zfs_args->dataset, (char *)NULL);
 
 	return -1;

@@ -206,18 +206,21 @@ extern int lxc_arguments_parse(struct lxc_arguments *args, int argc,
 			  strerror(errno));
 		return ret;
 	}
-
+	
 	for (;;) {
 		int c;
 		int index = 0;
-
+		
 		c = getopt_long(argc, argv, shortopts, args->options, &index);
 		if (c == -1)
 			break;
-
+		
 		switch (c) {
 		case 'n':
 			args->name = optarg;
+			break;
+		case 'g':
+			args->gname = optarg;
 			break;
 		case 'o':
 			args->log_file = optarg;
@@ -258,13 +261,13 @@ extern int lxc_arguments_parse(struct lxc_arguments *args, int argc,
 			}
 		}
 	}
-
+	
 	/*
 	 * Reclaim the remaining command arguments
 	 */
 	args->argv = &argv[optind];
 	args->argc = argc - optind;
-
+	
 	/* If no lxcpaths were given, use default */
 	if (!args->lxcpath_cnt) {
 		ret = lxc_arguments_lxcpath_add(
@@ -282,16 +285,14 @@ extern int lxc_arguments_parse(struct lxc_arguments *args, int argc,
 			args->argv = &argv[optind];
 			args->argc = argc - optind;
 		}
-
 		if (!args->name) {
 			lxc_error(args, "No container name specified");
 			return -1;
 		}
 	}
-
 	if (args->checker)
 		ret = args->checker(args);
-
+	
 error:
 	if (ret)
 		lxc_error(args, "could not parse command line");

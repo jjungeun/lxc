@@ -225,7 +225,7 @@ static int read_default_map(char *fnam, int which, char *user)
 		p2 = strchr(p1 + 1, ':');
 		if (!p2)
 			continue;
-
+		
 		line[strlen(line) - 1] = '\0';
 		*p2 = '\0';
 
