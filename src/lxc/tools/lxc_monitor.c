@@ -239,6 +239,63 @@ static int lxc_tool_monitord_spawn(const char *lxcpath)
 	_exit(EXIT_FAILURE);
 }
 
+static bool get_group_container(char * group_name) {
+	DIR *dir = NULL;
+	struct dirent *dirinfo = NULL;
+	size_t len;
+	char *s = NULL;
+	char *c = NULL;
+	int ret;
+	char *path = (char *)lxc_global_config_value("lxc.lxcgrouppath");
+	
+
+	len = strlen(path) + strlen(group_name) + 2;
+	s = malloc(len);
+	if (!s)
+		return false;
+
+	ret = snprintf(s, len, "%s/%s", path, group_name);
+	if (ret < 0 || (size_t)ret >= len) {
+		free(s);
+		return false;
+	}
+
+	dir = opendir((const char*)s);
+	if (dir != NULL)
+	{
+		while(dirinfo = readdir(dir))
+		{
+			if (strcmp(dirinfo->d_name,".") && strcmp(dirinfo->d_name,"..")){
+				if (c == NULL){
+					len = strlen(dirinfo->d_name) + 1;
+					c = (char *)malloc(len);
+					ret = snprintf(c, len, "%s", dirinfo->d_name);
+					if (ret < 0 || (size_t)ret >= len) {
+						free(s);
+						free(c);
+						return false;
+					}
+				}
+				else {
+					len += strlen(dirinfo->d_name) + 1;
+					char *new = (char *)malloc(len);
+					strcpy(new,c);
+					strcat(new,"|");
+					strcat(new,dirinfo->d_name);
+					free(c);
+					c = new;
+				}
+			}
+		}
+		free(c);
+		closedir(dir);
+	}
+
+	free(s);
+	
+	return true;
+}
+
 int main(int argc, char *argv[])
 {
 	char *regexp;
@@ -253,6 +310,13 @@ int main(int argc, char *argv[])
 
 	if (lxc_arguments_parse(&my_args, argc, argv))
 		exit(rc_main);
+
+	if (my_args.gname) {
+		if(!get_group_container(my_args.gname)) {
+			ERROR("Failed to get group container");
+			exit(rc_main);
+		}
+	}
 
 	/* Only create log if explicitly instructed */
 	if (my_args.log_file || my_args.log_priority) {
@@ -269,10 +333,10 @@ int main(int argc, char *argv[])
 
 	if (quit_monitord) {
 		int ret = EXIT_SUCCESS;
-
+		
 		for (i = 0; i < my_args.lxcpath_cnt; i++) {
 			int fd;
-
+			
 			fd = lxc_monitor_open(my_args.lxcpath[i]);
 			if (fd < 0) {
 				ERROR("Unable to open monitor on path: %s", my_args.lxcpath[i]);
@@ -292,7 +356,7 @@ int main(int argc, char *argv[])
 
 		exit(ret);
 	}
-	printf("name:%s\n",my_args.name);
+
 	len = strlen(my_args.name) + 3;
 	regexp = malloc(len + 3);
 	if (!regexp) {
@@ -305,7 +369,6 @@ int main(int argc, char *argv[])
 		ERROR("Name too long");
 		goto error;
 	}
-	printf("regexp:%s\n",regexp);
 
 	if (regcomp(&preg, regexp, REG_NOSUB|REG_EXTENDED)) {
 		ERROR("Failed to compile the regex '%s'", my_args.name);

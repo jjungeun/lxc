@@ -270,7 +270,7 @@ int main(int argc, char *argv[])
 		if (bret)
 			ERROR("Destroyed container %s", my_args.name);
 	}
-
+	
 	lxc_container_put(c);
 
 	if (bret)
