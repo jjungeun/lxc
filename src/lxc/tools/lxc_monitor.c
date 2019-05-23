@@ -239,12 +239,11 @@ static int lxc_tool_monitord_spawn(const char *lxcpath)
 	_exit(EXIT_FAILURE);
 }
 
-static bool get_group_container(char * group_name) {
+static char * get_group_container(char * containers, const char * group_name) {
 	DIR *dir = NULL;
 	struct dirent *dirinfo = NULL;
 	size_t len;
 	char *s = NULL;
-	char *c = NULL;
 	int ret;
 	char *path = (char *)lxc_global_config_value("lxc.lxcgrouppath");
 	
@@ -252,12 +251,12 @@ static bool get_group_container(char * group_name) {
 	len = strlen(path) + strlen(group_name) + 2;
 	s = malloc(len);
 	if (!s)
-		return false;
+		return NULL;
 
 	ret = snprintf(s, len, "%s/%s", path, group_name);
 	if (ret < 0 || (size_t)ret >= len) {
 		free(s);
-		return false;
+		return NULL;
 	}
 
 	dir = opendir((const char*)s);
@@ -266,34 +265,30 @@ static bool get_group_container(char * group_name) {
 		while(dirinfo = readdir(dir))
 		{
 			if (strcmp(dirinfo->d_name,".") && strcmp(dirinfo->d_name,"..")){
-				if (c == NULL){
+				if (containers == NULL){
 					len = strlen(dirinfo->d_name) + 1;
-					c = (char *)malloc(len);
-					ret = snprintf(c, len, "%s", dirinfo->d_name);
+					containers = (char *)malloc(len);
+					ret = snprintf(containers, len, "%s", dirinfo->d_name);
 					if (ret < 0 || (size_t)ret >= len) {
 						free(s);
-						free(c);
-						return false;
+						return NULL;
 					}
 				}
 				else {
 					len += strlen(dirinfo->d_name) + 1;
 					char *new = (char *)malloc(len);
-					strcpy(new,c);
+					strcpy(new,containers);
 					strcat(new,"|");
 					strcat(new,dirinfo->d_name);
-					free(c);
-					c = new;
+					containers = new;
 				}
 			}
 		}
-		free(c);
 		closedir(dir);
 	}
-
 	free(s);
 	
-	return true;
+	return containers;
 }
 
 int main(int argc, char *argv[])
@@ -305,6 +300,7 @@ int main(int argc, char *argv[])
 	nfds_t nfds;
 	int len, rc_main, rc_snp, i;
 	struct lxc_log log;
+	char *containers = NULL;
 
 	rc_main = EXIT_FAILURE;
 
@@ -312,10 +308,11 @@ int main(int argc, char *argv[])
 		exit(rc_main);
 
 	if (my_args.gname) {
-		if(!get_group_container(my_args.gname)) {
+		if((containers = get_group_container(containers,my_args.gname)) == NULL) {
 			ERROR("Failed to get group container");
 			exit(rc_main);
 		}
+		my_args.name = (const char *)containers;
 	}
 
 	/* Only create log if explicitly instructed */
@@ -374,6 +371,7 @@ int main(int argc, char *argv[])
 		ERROR("Failed to compile the regex '%s'", my_args.name);
 		goto error;
 	}
+	free(containers);
 
 	fds = malloc(my_args.lxcpath_cnt * sizeof(struct pollfd));
 	if (!fds) {
@@ -435,6 +433,6 @@ cleanup:
 
 error:
 	free(regexp);
-
+	free(containers);
 	exit(rc_main);
 }
